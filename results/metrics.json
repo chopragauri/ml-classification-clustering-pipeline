@@ -1,0 +1,74 @@
+{
+  "Logistic Regression": {
+    "model": "Logistic Regression",
+    "accuracy": 0.824,
+    "f1": 0.85,
+    "roc_auc": 0.99
+  },
+  "Naive Bayes": {
+    "model": "Naive Bayes",
+    "accuracy": 0.853,
+    "f1": 0.872,
+    "roc_auc": 0.993
+  },
+  "KNN": {
+    "model": "KNN",
+    "accuracy": 0.794,
+    "f1": 0.829,
+    "roc_auc": 0.962
+  },
+  "SVM": {
+    "model": "SVM",
+    "accuracy": 0.794,
+    "f1": 0.829,
+    "roc_auc": 0.983
+  },
+  "Decision Tree": {
+    "model": "Decision Tree",
+    "accuracy": 0.735,
+    "f1": 0.78,
+    "roc_auc": 0.735
+  },
+  "Random Forest": {
+    "model": "Random Forest",
+    "accuracy": 0.882,
+    "f1": 0.895,
+    "roc_auc": 0.99
+  },
+  "AdaBoost": {
+    "model": "AdaBoost",
+    "accuracy": 0.794,
+    "f1": 0.821,
+    "roc_auc": 0.979
+  },
+  "Gradient Boosting": {
+    "model": "Gradient Boosting",
+    "accuracy": 0.853,
+    "f1": 0.872,
+    "roc_auc": 0.997
+  },
+  "XGBoost": {
+    "model": "XGBoost",
+    "accuracy": 0.853,
+    "f1": 0.872,
+    "roc_auc": 0.986
+  },
+  "LightGBM": {
+    "model": "LightGBM",
+    "accuracy": 0.765,
+    "f1": 0.81,
+    "roc_auc": 0.972
+  },
+  "Stacking": {
+    "model": "Stacking",
+    "accuracy": 0.765,
+    "f1": 0.81,
+    "roc_auc": 0.976
+  },
+  "clustering": {
+    "K-Means":      {"clusters": 5, "silhouette": 0.299, "davies_bouldin": 0.872, "calinski_harabasz": 54.3},
+    "K-Medoids":    {"clusters": 5, "silhouette": 0.300, "davies_bouldin": 0.869, "calinski_harabasz": 55.1},
+    "DBSCAN":       {"clusters": 3, "silhouette": 0.441, "davies_bouldin": 0.876, "calinski_harabasz": 48.7},
+    "Hierarchical": {"clusters": 5, "silhouette": 0.219, "davies_bouldin": 1.301, "calinski_harabasz": 41.2}
+  }
+}
