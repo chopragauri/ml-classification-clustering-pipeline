@@ -1,0 +1,83 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate Pipeline
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verify src modules import cleanly
+        run: |
+          python -c "from src.features import load_config, compute_development_score, derive_target, load_and_engineer; print('features.py OK')"
+          python -c "from src.train import train_all_models, build_leaderboard, save_metrics; print('train.py OK')"
+          python -c "from src.cluster import run_all_clusters, evaluate_clusters; print('cluster.py OK')"
+
+      - name: Validate config.yaml schema
+        run: |
+          python - <<'EOF'
+          import yaml, sys
+          with open("config.yaml") as f:
+              cfg = yaml.safe_load(f)
+          required_keys = ["data", "feature_engineering", "classification", "clustering", "output"]
+          for k in required_keys:
+              assert k in cfg, f"Missing top-level key: {k}"
+          assert "test_size" in cfg["data"], "Missing data.test_size"
+          assert "development_threshold" in cfg["feature_engineering"], "Missing feature_engineering.development_threshold"
+          assert "cv_folds" in cfg["classification"], "Missing classification.cv_folds"
+          assert "kmeans" in cfg["clustering"], "Missing clustering.kmeans"
+          print("config.yaml schema OK")
+          EOF
+
+      - name: Validate metrics.json structure
+        run: |
+          python - <<'EOF'
+          import json
+          with open("results/metrics.json") as f:
+              m = json.load(f)
+          classifiers = ["Logistic Regression","Naive Bayes","KNN","SVM","Decision Tree",
+                         "Random Forest","AdaBoost","Gradient Boosting","XGBoost","LightGBM","Stacking"]
+          for clf in classifiers:
+              assert clf in m, f"Missing classifier: {clf}"
+              for metric in ["accuracy","f1","roc_auc"]:
+                  assert metric in m[clf], f"Missing {metric} in {clf}"
+          assert "clustering" in m
+          for algo in ["K-Means","K-Medoids","DBSCAN","Hierarchical"]:
+              assert algo in m["clustering"], f"Missing clustering algo: {algo}"
+          print(f"metrics.json OK — {len(classifiers)} classifiers, 4 clustering algorithms validated")
+          EOF
+
+      - name: Check plots directory exists
+        run: test -d plots && echo "plots/ OK"
+
+      - name: Print leaderboard summary
+        run: |
+          python - <<'EOF'
+          import json
+          with open("results/metrics.json") as f:
+              m = json.load(f)
+          rows = [(k, v["roc_auc"], v["accuracy"]) for k, v in m.items() if k != "clustering"]
+          rows.sort(key=lambda x: -x[1])
+          print(f"{'Model':<25} {'ROC-AUC':>10} {'Accuracy':>10}")
+          print("-" * 47)
+          for name, roc, acc in rows:
+              print(f"{name:<25} {roc:>10.3f} {acc:>10.3f}")
+          print(f"\nBest ROC-AUC: {rows[0][0]} ({rows[0][1]:.3f})")
+          EOF
